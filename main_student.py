@@ -10,6 +10,8 @@ from models import teacher_resnet, teacher_resnet_wide
 from models import student_resnet, student_resnet_wide
 import dataloaders
 import proj_utils
+from tqdm import tqdm
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model-dir', metavar='MODEL_DIR',
@@ -59,6 +61,8 @@ proj_utils.prep_output_folder(args.model_dir, args.evaluate)
 
 def main():
     mode = 'train' if not args.evaluate else 'eval'
+    print(f'@ main_student.py ...\nmode = {mode} ...')
+
     logger = proj_utils.Logger(args.log2file, mode=mode, model_dir=args.model_dir)
 
     # Args
@@ -69,6 +73,7 @@ def main():
 
     # Data
     if mode == 'train':
+        print('student training...')
         train_loader = dataloaders.get_dataloader(
             dataset=args.task, 
             batch_size=args.batch_size,
@@ -166,7 +171,7 @@ def main():
         logger.add_line("\n" + "="*30+"   Model Stats   "+"="*30)
         logger.add_line(model.stats())
 
-        for ii, epoch in enumerate(range(args.epochs)):
+        for ii, epoch in enumerate(tqdm(range(args.epochs))):
             # Train for one epoch
             logger.add_line("\n"+"="*30+"   Train (Epoch {})   ".format(epoch)+"="*30)
             optimizer = proj_utils.adjust_learning_rate(optimizer, epoch, args.lr, args.lr_decay_epochs, logger)
@@ -218,7 +223,7 @@ def train(data_loader, model, teacher, criterion, optimizer, epoch, logger):
 
     l2dist = nn.MSELoss()
     end = time.time()
-    for i, (images, labels, _) in enumerate(data_loader):
+    for i, (images, labels, _) in enumerate(tqdm(data_loader)):
         if images.size(0) != args.batch_size:
             break
         images, labels = images.to(DEVICE), labels.to(DEVICE)
@@ -271,6 +276,7 @@ def train(data_loader, model, teacher, criterion, optimizer, epoch, logger):
 
 
 def validate(data_loader, model, teacher, criterion, logger, epoch=None):
+    print('student validation...')
     batch_time = proj_utils.AverageMeter()
     loss_avg = proj_utils.AverageMeter()
     acc_avg = proj_utils.AverageMeter()
@@ -283,7 +289,7 @@ def validate(data_loader, model, teacher, criterion, logger, epoch=None):
 
     with torch.no_grad():
         end = time.time()
-        for i, (images, labels, _) in enumerate(data_loader):
+        for i, (images, labels, _) in enumerate(tqdm(data_loader)):
             images, labels = images.to(DEVICE), labels.to(DEVICE)
 
             # Forward data through student

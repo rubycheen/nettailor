@@ -8,6 +8,7 @@ import torch.optim
 from models import teacher_resnet, teacher_resnet_wide
 import proj_utils
 import dataloaders
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--task', default='cifar100', help='task to train')
@@ -34,6 +35,9 @@ DEVICE = torch.device("cuda:0")
 
 def main():
     mode = 'train' if not args.evaluate else 'eval'
+
+    print(f'@ main_teacher.py ...\nmode = {mode} ...')
+
     logger = proj_utils.Logger(args.log2file, mode=mode, model_dir=args.model_dir)
 
     # Args
@@ -118,7 +122,9 @@ def main():
     ############################ EVAL #########################################
     elif mode == 'eval':
         fn = args.model_dir + '/checkpoint.pth.tar'
+        print('model loading...')
         model.load_state_dict(torch.load(fn)['state_dict'])
+        print('validation...')
         err, acc, run_time = validate(test_loader, model, criterion, logger)
 
     logger.add_line('='*30+'  COMPLETED  '+'='*30)
@@ -128,6 +134,7 @@ def main():
 
 
 def train(data_loader, model, criterion, optimizer, epoch, logger):
+    print('teacher training ...')
     batch_time = proj_utils.AverageMeter()
     data_time = proj_utils.AverageMeter()
     loss_avg = proj_utils.AverageMeter()
@@ -137,7 +144,7 @@ def train(data_loader, model, criterion, optimizer, epoch, logger):
     model.train()
 
     end = time.time()
-    for i, (images, labels, _) in enumerate(data_loader):
+    for i, (images, labels, _) in enumerate(tqdm(data_loader)):
         images, labels = images.to(DEVICE), labels.to(DEVICE)
         if images.size(0) != args.batch_size:
             break
@@ -172,6 +179,7 @@ def train(data_loader, model, criterion, optimizer, epoch, logger):
                     ))
 
 def validate(data_loader, model, criterion, logger, epoch=None):
+    print('teacher validation ...')
     batch_time = proj_utils.AverageMeter()
     loss_avg = proj_utils.AverageMeter()
     acc_avg = proj_utils.AverageMeter()
@@ -182,7 +190,7 @@ def validate(data_loader, model, criterion, logger, epoch=None):
     image_ids, preds = [], []
     with torch.no_grad():
         end = time.time()
-        for i, (images, labels, _) in enumerate(data_loader):
+        for i, (images, labels, _) in enumerate(tqdm(data_loader)):
             images, labels = images.to(DEVICE), labels.to(DEVICE)
 
             # compute output

@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 import numpy as np
 import collections
-from nettailor import NetTailorBlock, BasicProxy, conv, conv1x1, conv3x3
+from models.student_resnet import NetTailorBlock, BasicProxy, conv, conv1x1, conv3x3
 from proj_utils import AverageMeter
 
 __all__ = [ 
@@ -14,7 +14,7 @@ __all__ = [
 PRETRAINED_PATH = {
     'wide_resnet26': 'checkpoints/wide_resnet26.pth.tar'
 }
-
+ 
 
 class BasicWideResBlock(nn.Module):
     expansion = 1

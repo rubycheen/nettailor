@@ -2,6 +2,7 @@ import os
 import random
 import pickle
 from PIL import Image
+import numpy as np
 from pycocotools.coco import COCO
 from torchvision import datasets, transforms
 import torch.utils.data as data
@@ -127,7 +128,7 @@ def get_dataset(dataset, mode):
         # Data augmentation
         if mode == 'train':
             transform = transforms.Compose([
-                transforms.Scale(image_size),
+                transforms.Resize(image_size),
                 transforms.RandomCrop(crop_size),
                 transforms.ToTensor(),
                 normalize,
@@ -135,7 +136,7 @@ def get_dataset(dataset, mode):
             split = 'train'
         else:
             transform = transforms.Compose([
-                transforms.Scale(image_size),
+                transforms.Resize(image_size),
                 transforms.CenterCrop(crop_size),
                 transforms.ToTensor(),
                 normalize,

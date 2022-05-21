@@ -11,8 +11,8 @@ GPU = 0
 
 ########################## TRAIN TEACHER ############################################### 
 
-BATCH_SIZE = 64
-EPOCHS = 20
+BATCH_SIZE = 64*8
+EPOCHS = 1
 LR = 0.01
 LR_EPOCHS = 8
 WEIGHT_DECAY = 0.0005
@@ -33,11 +33,11 @@ cmd = ("CUDA_VISIBLE_DEVICES={gpu} "
 			gpu=GPU, task=TASK, arch=BACKBONE, model_dir=teacher_dir,
 			epochs=EPOCHS, bs=BATCH_SIZE, lr=LR, lr_epochs=LR_EPOCHS, wd=WEIGHT_DECAY)
 
-print(cmd)
-os.system(cmd)
+# print(cmd)
+# os.system(cmd)
 
-print(cmd + ' --evaluate')
-os.system(cmd + ' --evaluate')
+# print(cmd + ' --evaluate')
+# os.system(cmd + ' --evaluate')
 
 ########################## TRAIN STUDENT ############################################### 
 
@@ -46,7 +46,7 @@ TEACHER_COEFF = 10.0
 MAX_SKIP = 3
 
 BATCH_SIZE = 32
-EPOCHS = 20
+EPOCHS = 1
 LR_EPOCHS = 8
 LR = 0.1
 
@@ -69,7 +69,7 @@ cmd = ("CUDA_VISIBLE_DEVICES={gpu} "
 	   "--weight-decay {wd} "
 	   "--workers 4 "
 	   "--log2file ").format(
-			gpu=GPU, task=TASK, full_model_fn=full_model_fn, backbone=BACKBONE, teacher_fn=teacher_fn, max_skip=MAX_SKIP,
+			gpu=GPU, task=TASK, full_model_fn=full_model_fn, teacher_fn=teacher_fn, backbone=BACKBONE,  max_skip=MAX_SKIP,
 			complexity=COMPLEXITY_COEFF, teacher=TEACHER_COEFF, epochs=EPOCHS, bs=BATCH_SIZE, lr=LR, lr_epochs=LR_EPOCHS, wd=WEIGHT_DECAY)
 
 print(cmd)
@@ -83,7 +83,7 @@ os.system(cmd + " --evaluate")
 NUM_BLOCKS_PRUNED = 11
 PROXY_PRUNING_THRESHOLD = 0.075
 BATCH_SIZE = 32
-EPOCHS = 20
+EPOCHS = 1
 LR = 0.01
 LR_EPOCHS = 8
 
@@ -107,7 +107,7 @@ cmd = ("CUDA_VISIBLE_DEVICES={gpu} "
 	   "--lr-decay-epochs {lr_epochs} "
 	   "--workers 4 "
 	   "--log2file ").format(
-			gpu=GPU, task=TASK, pruned_model_fn=pruned_model_fn, full_model_fn=full_model_fn, backbone=BACKBONE, teacher_fn=teacher_fn, 
+			gpu=GPU, task=TASK, full_model_fn=full_model_fn, teacher_fn=teacher_fn, backbone=BACKBONE, pruned_model_fn=pruned_model_fn,
 			thr=NUM_BLOCKS_PRUNED, adapt_thr=PROXY_PRUNING_THRESHOLD, max_skip=MAX_SKIP, teacher=TEACHER_COEFF, epochs=EPOCHS, bs=BATCH_SIZE, lr=LR, lr_epochs=LR_EPOCHS)
 
 print(cmd)
